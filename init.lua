@@ -399,6 +399,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'todo-comments')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -857,7 +858,22 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {},
+    config = function()
+      vim.keymap.set('n', ']t', function()
+        require('todo-comments').jump_next { keywords = { 'ERROR', 'WARNING' } }
+      end, { desc = 'Next error/warning [t]odo comment' })
+
+      vim.keymap.set('n', '[t', function()
+        require('todo-comments').jump_prev { keywords = { 'ERROR', 'WARNING' } }
+      end, { desc = 'Previous error/warning [t]odo comment' })
+      -- vim.keymap.set('n', '<leader>st', require('telescope._extensions.todo-comments').todo(), { desc = '[S]earch [T]odo Comments' })
+    end,
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
