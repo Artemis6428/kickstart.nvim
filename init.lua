@@ -592,7 +592,7 @@ require('lazy').setup({
 
       -- Change diagnostic symbols in the sign column (gutter)
       if vim.g.have_nerd_font then
-        local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
+        local signs = { ERROR = '', WARN = '', INFO = '󰅽', HINT = '' }
         local diagnostic_signs = {}
         for type, icon in pairs(signs) do
           diagnostic_signs[vim.diagnostic.severity[type]] = icon
@@ -863,21 +863,78 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
+  -- - FIX  (FIXME, BUG, FIXIT, ISSUE)
+  -- - TODO (PROCRASTINATE)
+  -- - HACK (CRUTCH)
+  -- - WARN (WARNING, XXX)
+  -- - PERF (OPTIM, PERFORMANCE, OPTIMIZE)
+  -- - NOTE (INFO)
+  -- - TEST (TESTING, PASSED, FAILED)
   {
     'folke/todo-comments.nvim',
     event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {},
-    config = function()
-      vim.keymap.set('n', ']t', function()
-        require('todo-comments').jump_next { keywords = { 'ERROR', 'WARNING' } }
-      end, { desc = 'Next error/warning [t]odo comment' })
+    opts = {
+      keywords = {
+        FIX = { icon = '' },
+        TODO = { icon = '', alt = { 'PROCRASTINATE' } },
+        HACK = { icon = '', alt = { 'CRUTCH' }, color = 'crutch' },
+        WARN = { icon = '' },
+        PERF = { icon = '󱓞' },
+        NOTE = { icon = '󰅽' },
+        TEST = { icon = '󱄶' },
+      },
+      highlight = { before = 'fg' },
+      colors = {
+        default = '#cba6f7',
+        test = '#f5c2e7',
+        crutch = '#f2cdcd',
+      },
+      search = { command = '<leader>st' },
+    },
+    vim.keymap.set('n', ']t', function()
+      require('todo-comments').jump_next()
+    end, { desc = 'Next [t]odo comment' }),
 
-      vim.keymap.set('n', '[t', function()
-        require('todo-comments').jump_prev { keywords = { 'ERROR', 'WARNING' } }
-      end, { desc = 'Previous error/warning [t]odo comment' })
-      -- vim.keymap.set('n', '<leader>st', require('telescope._extensions.todo-comments').todo(), { desc = '[S]earch [T]odo Comments' })
-    end,
+    vim.keymap.set('n', '[t', function()
+      require('todo-comments').jump_prev()
+    end, { desc = 'Previous [t]odo comment' }),
+
+    vim.keymap.set('n', ']T', function()
+      require('todo-comments').jump_next {
+        keywords = {
+          -- All varients of 'FIX'
+          'FIX',
+          'FIXME',
+          'BUG',
+          'FIXIT',
+          'ISSUE',
+          -- All varients of 'WARN'
+          'WARN',
+          'WARNING',
+          'XXX',
+        },
+      }
+    end, { desc = 'Next error/warning [T]odo comment' }),
+
+    vim.keymap.set('n', '[T', function()
+      require('todo-comments').jump_prev {
+        keywords = {
+          -- All varients of 'FIX'
+          'FIX',
+          'FIXME',
+          'BUG',
+          'FIXIT',
+          'ISSUE',
+          -- All varients of 'WARN'
+          'WARN',
+          'WARNING',
+          'XXX',
+        },
+      }
+    end, { desc = 'Previous error/warning [T]odo comment' }),
+
+    -- vim.keymap.set('n', '<leader>st', require('telescope._extensions.todo-comments').todo(), { desc = '[S]earch [T]odo Comments' })
   },
 
   { -- Collection of various small independent plugins/modules
