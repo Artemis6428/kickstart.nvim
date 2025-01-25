@@ -518,7 +518,7 @@ require('lazy').setup({
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gR', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
@@ -885,17 +885,47 @@ require('lazy').setup({
     config = function()
       -- Better Around/Inside textobjects
       --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
-      --  - ci'  - [C]hange [I]nside [']quote
+      -- - va)  -> [V]isually select [A]round [)]paren
+      -- - yinq -> [Y]ank [I]nside [N]ext [Q]uote
+      -- - ci'  -> [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
 
+      -- Align text interactively in 3 main steps
+      --
+      -- - Split lines into parts based on Lua pattern
+      -- - Justify parts to be same width inside columns
+      -- - Merge parts to be lines
+      require('mini.align').setup()
+
+      -- Move selection using Alt + hjkl
+      require('mini.move').setup()
+
+      -- Text editing operators
+      --
+      -- - g= -> Evaluate text and replace with output
+      -- - gx -> Exchange text regionsWARN sad
+      -- - gm -> Multiply (duplicate) text
+      -- - gr -> Replace text with register
+      -- - gs -> Sort text
+      --
+      -- NOTE: The exchange keybind has a conflict with
+      --       an unrelated actions and is hence disabled
+      require('mini.operators').setup {
+        exchange = { prefix = '' },
+      }
+
+      -- Split and join arguments
+      --
+      -- - gS -> toggle
+      require('mini.splitjoin').setup()
+
+      -- CRUTCH: No idea why this is necessary its yucky
+      vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
+      -- - saiw) -> [S]urround [A]dd [I]nner [W]ord [)]Paren
+      -- - sd'   -> [S]urround [D]elete [']quotes
+      -- - sr)'  -> [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
       -- Simple and easy statusline.
@@ -912,6 +942,9 @@ require('lazy').setup({
       statusline.section_location = function()
         return '%2l:%-2v'
       end
+
+      -- Dunno what this do really but notification yippee
+      -- require('mini.notify').setup()
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
